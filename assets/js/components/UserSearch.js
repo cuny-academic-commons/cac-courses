@@ -19,6 +19,30 @@ class UserSearch extends React.Component {
 		this.handleSelect = this.handleSelect.bind(this)
 	}
 
+	componentDidMount() {
+		const { selectedUserIds } = this.props
+
+		const request = wp.apiFetch( {
+			path: wp.url.addQueryArgs( `/wp/v2/users`, { include: selectedUserIds } ),
+		} );
+
+		request.then( ( foundUsers ) => {
+			console.log(foundUsers);
+			const newSelectedUsers = foundUsers.map( (user) => ( {
+				label: user.name + ' (' + user.login + ')',
+				value: user.id,
+			} ) );
+
+			this.setSelectedUsers( newSelectedUsers )
+//			this.setState( { allUsers: foundUsers } )
+
+//			let newCached = Object.assign( {}, this.state.cached )
+//			newCached[ newValue ] = foundUsers
+//			this.setState( { cached: newCached } )
+		} );
+		console.log(this.props.selectedUserIds)
+	}
+
 	handleInputChange(e) {
 		const newValue = e.target.value
     const inputValue = newValue.replace(/\W/g, '');

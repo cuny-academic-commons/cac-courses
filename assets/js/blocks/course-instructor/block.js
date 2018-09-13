@@ -3,8 +3,8 @@
  */
 
 //  Import CSS.
-import './style.scss';
-import './editor.scss';
+//import './style.scss';
+//import './editor.scss';
 
 import UserSearch from '../../components/UserSearch'
 
@@ -22,10 +22,10 @@ registerBlockType( 'cac-courses/cac-course-instructor', {
 	],
 
 	attributes: {
-		instructorId: {
+		instructorIds: {
 			type: 'string',
 			source: 'meta',
-			meta: 'instructor-id',
+			meta: 'instructor-ids',
 		},
 	},
 
@@ -40,19 +40,22 @@ registerBlockType( 'cac-courses/cac-course-instructor', {
 	edit: function( props ) {
 		const {
 			attributes: {
-				instructorId
+				instructorIds
 			}
 		} = props
 
 		const handleSelectedUsersUpdate = (selectedUsers) => {
 			const ids = selectedUsers.map( (user) => user.value )
-			props.setAttributes( { instructorId: JSON.stringify(ids) } )
+			props.setAttributes( { instructorIds: JSON.stringify(ids) } )
 		}
+
+		const selectedInstructorIds = JSON.parse( props.attributes.instructorIds )
 
 		return (
 			<div>
 				<UserSearch
 					handleSelectedUsersUpdate={handleSelectedUsersUpdate}
+					selectedUserIds={selectedInstructorIds}
 				/>
 			</div>
 		)

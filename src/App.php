@@ -36,6 +36,9 @@ class App {
 		// API endpoints.
 		API::init();
 
+		// Tax/meta sync.
+		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+
 		// Frontend template integration.
 //		Frontend::init();
 	}
@@ -87,19 +90,29 @@ class App {
 			]
 		);
 
-		// @todo function for creating taxonomy terms for campuses
-
 		register_taxonomy(
-			'cac_course_instructor_id',
+			'cac_course_instructor',
 			'cac_course',
 			[
-				'labels'       => [
+				'labels' => [
 					'name'          => __( 'Instructors', 'cac-courses' ),
 					'singular_name' => __( 'Instructor', 'cac-courses' ),
+					'add_new_term'  => __( 'Add New Instructor', 'cac-courses' ),
 				],
 				'show_in_rest' => true,
 				'show_ui'      => false, // @todo
 				'public'       => false,
+			]
+		);
+
+		register_meta(
+			'post',
+			'instructor-ids',
+			[
+				'object_subtype' => 'cac_course',
+				'show_in_rest'   => true,
+				'single'         => true,
+				'type'           => 'string',
 			]
 		);
 
@@ -124,5 +137,22 @@ class App {
 				'type'           => 'integer',
 			]
 		);
+	}
+
+	public static function sync_post_meta_and_tax_terms( $meta_id, $object_id, $meta_key, $meta_value ) {
+		if ( 'instructor-ids' !== $meta_key ) {
+			return;
+		}
+
+		$instructor_ids = json_decode( $meta_value );
+
+		$instructor_terms = array_map(
+			function( $user_id ) {
+				return 'instructor_' . $user_id;
+			},
+			$instructor_ids
+		);
+
+		wp_set_post_terms( $object_id, $instructor_terms, 'cac_course_instructor' );
 	}
 }
