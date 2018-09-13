@@ -22,6 +22,10 @@ class UserSearch extends React.Component {
 	componentDidMount() {
 		const { selectedUserIds } = this.props
 
+		if ( 0 === selectedUserIds.length ) {
+			return
+		}
+
 		const request = wp.apiFetch( {
 			path: wp.url.addQueryArgs( `/wp/v2/users`, { include: selectedUserIds } ),
 		} );

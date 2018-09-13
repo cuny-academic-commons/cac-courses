@@ -49,7 +49,10 @@ registerBlockType( 'cac-courses/cac-course-instructor', {
 			props.setAttributes( { instructorIds: JSON.stringify(ids) } )
 		}
 
-		const selectedInstructorIds = JSON.parse( props.attributes.instructorIds )
+		let selectedInstructorIds = []
+		if ( props.attributes.instructorIds.length > 0 ) {
+			selectedInstructorIds = JSON.parse( props.attributes.instructorIds )
+		}
 
 		const title = 'Course Instructor'
 		const gloss = 'Select one or more instructors for this course'
@@ -62,53 +65,6 @@ registerBlockType( 'cac-courses/cac-course-instructor', {
 					handleSelectedUsersUpdate={handleSelectedUsersUpdate}
 					selectedUserIds={selectedInstructorIds}
 				/>
-			</div>
-		)
-		const {
-			attributes: {
-				demoSiteId,
-				selectedDemoSites,
-				selectedTemplateSites,
-				templateSiteId
-			}
-		} = props
-
-		const setSelectedTemplateSites = (selectedTemplateSites) => {
-			props.setAttributes( { selectedTemplateSites } )
-		}
-
-		const setSelectedTemplateSiteId = (selectedTemplateSiteId) => {
-			props.setAttributes( { templateSiteId: selectedTemplateSiteId } )
-		}
-
-		const templateSiteField = <SiteSearch
-			labelText="Template Site"
-			setSelectedSites={setSelectedTemplateSites}
-			setSelectedSiteId={setSelectedTemplateSiteId}
-			selected={selectedTemplateSites}
-			selectedSiteId={templateSiteId}
-		/>
-
-		const setSelectedDemoSites = (selectedDemoSites) => {
-			props.setAttributes( { selectedDemoSites } )
-		}
-
-		const setSelectedDemoSiteId = (selectedDemoSiteId) => {
-			props.setAttributes( { demoSiteId: selectedDemoSiteId } )
-		}
-
-		const demoSiteField = <SiteSearch
-			labelText="Demo Site"
-			setSelectedSites={setSelectedDemoSites}
-			setSelectedSiteId={setSelectedDemoSiteId}
-			selected={selectedDemoSites}
-			selectedSiteId={demoSiteId}
-		/>
-
-		return (
-			<div>
-				{templateSiteField}
-				{demoSiteField}
 			</div>
 		)
 	},
