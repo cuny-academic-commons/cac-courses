@@ -4,7 +4,7 @@
 
 //  Import CSS.
 //import './style.scss';
-//import './editor.scss';
+import './editor.scss';
 
 import UserSearch from '../../components/UserSearch'
 
@@ -51,8 +51,13 @@ registerBlockType( 'cac-courses/cac-course-instructor', {
 
 		const selectedInstructorIds = JSON.parse( props.attributes.instructorIds )
 
+		const title = 'Course Instructor'
+		const gloss = 'Select one or more instructors for this course'
+
 		return (
-			<div>
+			<div className="cac-course-instructor-block">
+				<h2>{title}</h2>
+				<p>{gloss}</p>
 				<UserSearch
 					handleSelectedUsersUpdate={handleSelectedUsersUpdate}
 					selectedUserIds={selectedInstructorIds}

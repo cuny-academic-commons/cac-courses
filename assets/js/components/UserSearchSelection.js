@@ -8,11 +8,11 @@ class UserSearchSelection extends React.Component {
 			<li
 			  key={'selected-user-' + userId}
 			>
-				{label}&nbsp;
 				<a
+					className="selected-user-remove"
 					href="#"
 					onClick={() => {onRemoveClick(userId)}}
-				>x</a>
+				>&times;</a>&nbsp;<span className="selected-user-name">{label}</span>
 			</li>
 		)
 	}

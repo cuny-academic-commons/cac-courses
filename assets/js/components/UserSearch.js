@@ -119,10 +119,15 @@ class UserSearch extends React.Component {
 			zIndex: '100',
 		}
 
+		const inputProps = {
+			placeholder: 'Start typing to find a user',
+		}
+
 		return (
 			<div>
 				<Autocomplete
 					getItemValue={(user) => user.label}
+					inputProps={inputProps}
 					items={this.state.allUsers || []}
 					menuStyle={autocompleteStyles}
 					onChange={this.handleInputChange}
@@ -137,7 +142,7 @@ class UserSearch extends React.Component {
 					value={this.state.inputValue}
 				/>
 
-				<ul>
+				<ul className="selected-user-list">
 					{selectedUserEls}
 				</ul>
 			</div>
