@@ -12,6 +12,13 @@
  * @package CACCourses
  */
 
+/**
+ * Requires:
+ *
+ * - BP-REST
+ * - cac-endpoints
+ */
+
 // Exit if accessed directly.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
