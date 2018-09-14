@@ -1,0 +1,25 @@
+.editor-block-list__block {
+	ul.selected-item-list {
+		list-style-type: none !important;
+		margin-top: .5em;
+
+		li {
+			background: #efefef;
+			border-radius: 2px;
+			font-size: .9em;
+			margin-bottom: .5em;
+			padding: 4px 8px;
+
+			.selected-item-name {
+				padding-bottom: 5px;
+			}
+		}
+	}
+
+	a.selected-item-remove {
+		color: #f00;
+		font-size: 1.5em;
+		line-height: 1em;
+		text-decoration: none;
+	}
+}

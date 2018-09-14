@@ -51,3 +51,4 @@
 
 import './blocks/course-instructor/block.js';
 import './blocks/course-campus/block.js';
+import './blocks/course-group/block.js';

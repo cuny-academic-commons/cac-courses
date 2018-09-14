@@ -52,16 +52,19 @@ class App {
 				'show_in_rest' => true,
 				'template'     => [
 					[
+						'core/paragraph',
+						[
+							'placeholder' => 'Enter description',
+						]
+					],
+					[
 						'cac-courses/cac-course-instructor'
 					],
 					[
 						'cac-courses/cac-course-campus'
 					],
 					[
-						'core/paragraph',
-						[
-							'placeholder' => 'Enter description',
-						]
+						'cac-courses/cac-course-group'
 					],
 				],
 				'labels'       => [
@@ -87,8 +90,8 @@ class App {
 					'singular_name' => __( 'Campus', 'cac-courses' ),
 					'add_new_term'  => __( 'Add New Campus', 'cac-courses' ),
 				],
-				'show_in_rest' => true,
-				'show_ui'      => true, // @todo
+				'show_in_rest' => false,
+				'show_ui'      => false, // @todo
 				'public'       => false,
 			]
 		);
@@ -102,8 +105,23 @@ class App {
 					'singular_name' => __( 'Instructor', 'cac-courses' ),
 					'add_new_term'  => __( 'Add New Instructor', 'cac-courses' ),
 				],
-				'show_in_rest' => true,
+				'show_in_rest' => false,
 				'show_ui'      => false, // @todo
+				'public'       => false,
+			]
+		);
+
+		register_taxonomy(
+			'cac_course_group',
+			'cac_course',
+			[
+				'labels' => [
+					'name'          => __( 'Groups', 'cac-courses' ),
+					'singular_name' => __( 'Group', 'cac-courses' ),
+					'add_new_term'  => __( 'Add New Group', 'cac-courses' ),
+				],
+				'show_in_rest' => false,
+				'show_ui'      => false,
 				'public'       => false,
 			]
 		);
@@ -119,6 +137,7 @@ class App {
 			]
 		);
 
+		// Saves sometimes appear to fail because of https://core.trac.wordpress.org/ticket/42069
 		register_meta(
 			'post',
 			'campus-slugs',
@@ -132,18 +151,18 @@ class App {
 
 		register_meta(
 			'post',
-			'course-site-id',
+			'course-group-ids',
 			[
 				'object_subtype' => 'cac_course',
 				'show_in_rest'   => true,
 				'single'         => true,
-				'type'           => 'integer',
+				'type'           => 'string',
 			]
 		);
 
 		register_meta(
 			'post',
-			'course-group-id',
+			'course-site-id',
 			[
 				'object_subtype' => 'cac_course',
 				'show_in_rest'   => true,
@@ -173,7 +192,6 @@ class App {
 		$term_prefix = $map[ $meta_key ]['term_prefix'];
 
 		$meta_values = json_decode( $meta_value );
-		_b( $meta_values );
 
 		$meta_terms = array_map(
 			function( $mv ) use ( $term_prefix ) {

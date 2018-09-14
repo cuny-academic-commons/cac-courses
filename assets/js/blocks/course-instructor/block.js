@@ -4,7 +4,6 @@
 
 //  Import CSS.
 //import './style.scss';
-import './editor.scss';
 
 import UserSearch from '../../components/UserSearch'
 
