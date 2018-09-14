@@ -2,10 +2,6 @@
  * Block: course-group
  */
 
-//  Import CSS.
-//import './style.scss';
-//import './editor.scss';
-
 import GroupSearch from '../../components/GroupSearch'
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
@@ -13,7 +9,7 @@ const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.b
 
 registerBlockType( 'cac-courses/cac-course-group', {
 	title: __( 'Course Group' ), // Block title.
-	icon: 'smiley',
+	icon: 'groups',
 	category: 'common',
 	keywords: [
 		__( 'Group' ),

@@ -1,114 +1,71 @@
-const { FormTokenField } = wp.components
-const { Component } = wp.element
+import React, { Component } from 'react'
 
-import { find, invoke, throttle } from 'lodash'
+import AutocompleteSelector from './AutocompleteSelector'
 
-class SiteSearch extends Component {
-	constructor() {
-		super( ...arguments )
-		this.searchSites = throttle( this.searchSites.bind( this ), 500 );
+class SiteSearch extends React.Component {
+	constructor(props) {
+		super(props)
+
 		this.state = {
-			availableSites: [],
-			selectedSiteId: 0
+			selectedSites: []
 		}
-	}
-
-	componentDidMount() {
-		const { selectedSiteId } = this.props
-
-		if ( selectedSiteId > 0 ) {
-			const request = wp.apiFetch( {
-				path: '/cac-site-templates/v1/site/' + selectedSiteId,
-			} );
-
-			request.then( ( site ) => {
-				const { setSelectedSites } = this.props
-
-				this.setState( ( state ) => ( {
-					availableSites: [ site ]
-				} ) );
-				this.updateSelectedSites( [ site ] );
-
-				const selected = [ site.name + ' (' + site.url + ')' ]
-				setSelectedSites( selected )
-			} );
-		}
-	}
-
-	searchSites( search = '' ) {
-		if ( '' === search ) {
-			return
-		}
-
-		invoke( this.searchRequest, [ 'abort' ] );
-		this.searchRequest = this.fetchSites( { search } );
-	}
-
-	fetchSites( params = {} ) {
-		const request = wp.apiFetch( {
-			path: wp.url.addQueryArgs( `/cac-site-templates/v1/site`, params ),
-		} );
-
-		request.then( ( sites ) => {
-			this.setState( ( state ) => ( {
-				availableSites: sites
-			} ) );
-			this.updateSelectedSites( this.props.sites );
-		} );
-
-		return request;
-	}
-
-	updateSelectedSites( sites = [] ) {
-		let selectedSiteId
-		const selectedSites = sites.map( ( site ) => {
-			selectedSiteId = site.id
-			return site.id;
-		} )
-
-		this.setState( {
-			selectedSiteId,
-		} );
 	}
 
 	render() {
-		const { labelText, setSelectedSites, setSelectedSiteId, selected } = this.props
+		const { selectedSites } = this.state
+		const { handleSelectedSitesUpdate, selectedSiteIds } = this.props
 
-		const { availableSites } = this.state
-		const siteNames = availableSites.map( function( site ) {
-			return site.name + ' (' + site.url + ')'
+		const inputPlaceholder = "Start typing to find a site"
+
+		const searchRequest = (searchTerm) => ( wp.apiFetch( {
+			path: wp.url.addQueryArgs(
+				`/cac/v1/site`,
+				{
+					search: searchTerm,
+				}
+			),
+		} ) )
+
+		const searchResultsFormatCallback = (site) => ( {
+			label: site.name + ' (' + site.url + ')',
+			value: site.id,
 		} )
 
-		const onSelect = ( newSelected ) => {
-			setSelectedSites( newSelected )
+		// todo
+		const populateSelectionsCallback = (callback) => {
+			if ( 0 === selectedSiteIds.length ) {
+				callback( [] )
+				return;
+			}
 
-			// Get the ID of the selected site.
-			let selectedSiteLabel
-			newSelected.map( (site) => {
-				selectedSiteLabel = site // take the last one
-			} )
+			const request = wp.apiFetch( {
+				path: wp.url.addQueryArgs(
+					`/cac/v1/site`,
+					{
+						include: selectedSiteIds
+					}
+				),
+			} );
 
-			const selectedSite = find( availableSites, ( site ) => {
-				return site.name + ' (' + site.url + ')' === selectedSiteLabel
-			} )
+			request.then( ( foundSites ) => {
+				const newSelectedSites = foundSites.map( (site) => ( {
+					label: site.name + ' (' + site.url + ')',
+					value: site.id,
+				} ) );
 
-			const selectedSiteId = 'undefined' === typeof selectedSite ? 0 : selectedSite.id
-			setSelectedSiteId( selectedSiteId )
+				callback( newSelectedSites )
+			} );
 		}
 
 		return (
-			<div>
-				<label>
-					{labelText}
-				</label>
-				<FormTokenField
-						value={ selected }
-						suggestions={ siteNames }
-						onChange={ onSelect }
-						onInputChange={ this.searchSites }
-						placeholder="Start typing..."
-					/>
-			</div>
+			<AutocompleteSelector
+				handleSelectionsUpdate={handleSelectedSitesUpdate}
+				inputPlaceholder={inputPlaceholder}
+				populateSelectionsCallback={populateSelectionsCallback}
+				searchRequest={searchRequest}
+				searchResultsFormatCallback={searchResultsFormatCallback}
+				selections={selectedSites}
+			/>
 		)
 	}
 }

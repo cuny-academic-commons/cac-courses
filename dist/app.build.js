@@ -60,7 +60,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 15);
+/******/ 	return __webpack_require__(__webpack_require__.s = 16);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@
 if (false) {
   module.exports = require('./cjs/react.production.min.js');
 } else {
-  module.exports = __webpack_require__(18);
+  module.exports = __webpack_require__(19);
 }
 
 
@@ -591,6 +591,172 @@ module.exports = ReactPropTypesSecret;
 
 /***/ }),
 /* 11 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react_autocomplete__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react_autocomplete___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react_autocomplete__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__SearchSelection__ = __webpack_require__(36);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss__ = __webpack_require__(37);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss__);
+
+
+
+
+
+
+class AutocompleteSelector extends __WEBPACK_IMPORTED_MODULE_1_react___default.a.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			cached: {},
+			inputValue: '',
+			allItems: [],
+			selectedItems: [],
+			selections: []
+		};
+
+		this.handleInputChange = this.handleInputChange.bind(this);
+		this.handleRemoveClick = this.handleRemoveClick.bind(this);
+		this.handleSelect = this.handleSelect.bind(this);
+	}
+
+	componentDidMount() {
+		const { populateSelectionsCallback } = this.props;
+
+		const selections = populateSelectionsCallback(selections => {
+			this.setSelections(selections);
+		});
+	}
+
+	handleInputChange(e) {
+		const { searchRequest, searchResultsFormatCallback } = this.props;
+
+		const newValue = e.target.value;
+		const inputValue = newValue.replace(/\W/g, '');
+
+		this.setState({ inputValue });
+
+		if (this.state.cached.hasOwnProperty(inputValue)) {
+			this.setState({ allItems: this.state.cached[inputValue] });
+			return newValue;
+		}
+
+		const request = searchRequest(inputValue);
+
+		request.then(foundItems => {
+			console.log(foundItems);
+			const formattedFoundItems = foundItems.map(searchResultsFormatCallback);
+
+			this.setState({ allItems: formattedFoundItems });
+
+			let newCached = Object.assign({}, this.state.cached);
+			newCached[newValue] = formattedFoundItems;
+			this.setState({ cached: newCached });
+		});
+	}
+
+	handleSelect(match) {
+		this.setState({ inputValue: '' });
+
+		let i, matchedItem;
+		for (i in this.state.allItems) {
+			if (match === this.state.allItems[i].label) {
+				matchedItem = this.state.allItems[i];
+				break;
+			}
+		}
+
+		if ('undefined' === typeof matchedItem) {
+			return;
+		}
+
+		// No dupes.
+		let j;
+		for (j in this.state.selectedItems) {
+			if (match === this.state.selectedItems[j].label) {
+				return;
+			}
+		}
+
+		let newSelections = [...this.state.selections, matchedItem];
+		this.setSelections(newSelections);
+	}
+
+	handleRemoveClick(itemId) {
+		let newSelections = this.state.selections.filter(item => item.value !== itemId);
+		this.setSelections(newSelections);
+	}
+
+	setSelections(newSelections) {
+		const { handleSelectionsUpdate } = this.props;
+
+		this.setState({ selections: newSelections });
+		handleSelectionsUpdate(newSelections);
+	}
+
+	render() {
+		const { inputPlaceholder } = this.props;
+		const { selections } = this.state;
+
+		const selectionEls = selections.map(selection => __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__SearchSelection__["a" /* default */], {
+			key: 'selected-item-' + selection.value,
+			label: selection.label,
+			onRemoveClick: this.handleRemoveClick,
+			itemId: selection.value
+		}));
+
+		const autocompleteStyles = {
+			borderRadius: '3px',
+			boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+			background: 'rgba(255, 255, 255, 0.9)',
+			padding: '2px 4px',
+			fontSize: '90%',
+			position: 'fixed',
+			overflow: 'auto',
+			maxHeight: '50%',
+			zIndex: '100'
+		};
+
+		const inputProps = {
+			placeholder: inputPlaceholder
+		};
+
+		return __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
+			'div',
+			null,
+			__WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_0_react_autocomplete___default.a, {
+				getItemValue: item => item.label,
+				inputProps: inputProps,
+				items: this.state.allItems || [],
+				menuStyle: autocompleteStyles,
+				onChange: this.handleInputChange,
+				onSelect: this.handleSelect,
+				renderItem: (item, isHighlighted) => __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
+					'div',
+					{
+						style: { background: isHighlighted ? 'lightgray' : 'white' },
+						key: 'item-' + item.value },
+					item.label
+				),
+				value: this.state.inputValue
+			}),
+			__WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
+				'ul',
+				{ className: 'selected-item-list' },
+				selectionEls
+			)
+		);
+	}
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (AutocompleteSelector);
+
+/***/ }),
+/* 12 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -611,9 +777,9 @@ var _reactDom = __webpack_require__(2);
 
 var _reactDom2 = _interopRequireDefault(_reactDom);
 
-var _reactLifecyclesCompat = __webpack_require__(12);
+var _reactLifecyclesCompat = __webpack_require__(13);
 
-var _PropTypes = __webpack_require__(13);
+var _PropTypes = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -1193,7 +1359,7 @@ Transition.EXITING = 4;
 exports.default = (0, _reactLifecyclesCompat.polyfill)(Transition);
 
 /***/ }),
-/* 12 */
+/* 13 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1360,7 +1526,7 @@ function polyfill(Component) {
 
 
 /***/ }),
-/* 13 */
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1416,7 +1582,7 @@ var classNamesShape = exports.classNamesShape = _propTypes2.default.oneOfType([_
 })]);
 
 /***/ }),
-/* 14 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -1434,7 +1600,7 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _reactLifecyclesCompat = __webpack_require__(12);
+var _reactLifecyclesCompat = __webpack_require__(13);
 
 var _ChildMapping = __webpack_require__(62);
 
@@ -1623,14 +1789,15 @@ exports.default = (0, _reactLifecyclesCompat.polyfill)(TransitionGroup);
 module.exports = exports['default'];
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_course_instructor_block_js__ = __webpack_require__(16);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_course_instructor_block_js__ = __webpack_require__(17);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blocks_course_campus_block_js__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__blocks_course_group_block_js__ = __webpack_require__(63);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__blocks_course_site_block_js__ = __webpack_require__(65);
 /**
  * Gutenberg Blocks
  *
@@ -1689,12 +1856,13 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 
+
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_UserSearch__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_UserSearch__ = __webpack_require__(18);
 /**
  * Block: course-instructor
  */
@@ -1787,13 +1955,13 @@ registerBlockType('cac-courses/cac-course-instructor', {
 });
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__ = __webpack_require__(11);
 
 
 
@@ -1853,7 +2021,7 @@ class UserSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component
 /* harmony default export */ __webpack_exports__["a"] = (UserSearch);
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -3344,172 +3512,6 @@ module.exports = react;
   })();
 }
 
-
-/***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react_autocomplete__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react_autocomplete___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react_autocomplete__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__SearchSelection__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss__ = __webpack_require__(37);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__scss_AutocompleteSelector_scss__);
-
-
-
-
-
-
-class AutocompleteSelector extends __WEBPACK_IMPORTED_MODULE_1_react___default.a.Component {
-	constructor(props) {
-		super(props);
-
-		this.state = {
-			cached: {},
-			inputValue: '',
-			allItems: [],
-			selectedItems: [],
-			selections: []
-		};
-
-		this.handleInputChange = this.handleInputChange.bind(this);
-		this.handleRemoveClick = this.handleRemoveClick.bind(this);
-		this.handleSelect = this.handleSelect.bind(this);
-	}
-
-	componentDidMount() {
-		const { populateSelectionsCallback } = this.props;
-
-		const selections = populateSelectionsCallback(selections => {
-			this.setSelections(selections);
-		});
-	}
-
-	handleInputChange(e) {
-		const { searchRequest, searchResultsFormatCallback } = this.props;
-
-		const newValue = e.target.value;
-		const inputValue = newValue.replace(/\W/g, '');
-
-		this.setState({ inputValue });
-
-		if (this.state.cached.hasOwnProperty(inputValue)) {
-			this.setState({ allItems: this.state.cached[inputValue] });
-			return newValue;
-		}
-
-		const request = searchRequest(inputValue);
-
-		request.then(foundItems => {
-			console.log(foundItems);
-			const formattedFoundItems = foundItems.map(searchResultsFormatCallback);
-
-			this.setState({ allItems: formattedFoundItems });
-
-			let newCached = Object.assign({}, this.state.cached);
-			newCached[newValue] = formattedFoundItems;
-			this.setState({ cached: newCached });
-		});
-	}
-
-	handleSelect(match) {
-		this.setState({ inputValue: '' });
-
-		let i, matchedItem;
-		for (i in this.state.allItems) {
-			if (match === this.state.allItems[i].label) {
-				matchedItem = this.state.allItems[i];
-				break;
-			}
-		}
-
-		if ('undefined' === typeof matchedItem) {
-			return;
-		}
-
-		// No dupes.
-		let j;
-		for (j in this.state.selectedItems) {
-			if (match === this.state.selectedItems[j].label) {
-				return;
-			}
-		}
-
-		let newSelections = [...this.state.selections, matchedItem];
-		this.setSelections(newSelections);
-	}
-
-	handleRemoveClick(itemId) {
-		let newSelections = this.state.selections.filter(item => item.value !== itemId);
-		this.setSelections(newSelections);
-	}
-
-	setSelections(newSelections) {
-		const { handleSelectionsUpdate } = this.props;
-
-		this.setState({ selections: newSelections });
-		handleSelectionsUpdate(newSelections);
-	}
-
-	render() {
-		const { inputPlaceholder } = this.props;
-		const { selections } = this.state;
-
-		const selectionEls = selections.map(selection => __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_2__SearchSelection__["a" /* default */], {
-			key: 'selected-item-' + selection.value,
-			label: selection.label,
-			onRemoveClick: this.handleRemoveClick,
-			itemId: selection.value
-		}));
-
-		const autocompleteStyles = {
-			borderRadius: '3px',
-			boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
-			background: 'rgba(255, 255, 255, 0.9)',
-			padding: '2px 4px',
-			fontSize: '90%',
-			position: 'fixed',
-			overflow: 'auto',
-			maxHeight: '50%',
-			zIndex: '100'
-		};
-
-		const inputProps = {
-			placeholder: inputPlaceholder
-		};
-
-		return __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
-			'div',
-			null,
-			__WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_0_react_autocomplete___default.a, {
-				getItemValue: item => item.label,
-				inputProps: inputProps,
-				items: this.state.allItems || [],
-				menuStyle: autocompleteStyles,
-				onChange: this.handleInputChange,
-				onSelect: this.handleSelect,
-				renderItem: (item, isHighlighted) => __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
-					'div',
-					{
-						style: { background: isHighlighted ? 'lightgray' : 'white' },
-						key: 'item-' + item.value },
-					item.label
-				),
-				value: this.state.inputValue
-			}),
-			__WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
-				'ul',
-				{ className: 'selected-item-list' },
-				selectionEls
-			)
-		);
-	}
-}
-
-/* harmony default export */ __webpack_exports__["a"] = (AutocompleteSelector);
 
 /***/ }),
 /* 20 */
@@ -30656,11 +30658,11 @@ var _ReplaceTransition = __webpack_require__(61);
 
 var _ReplaceTransition2 = _interopRequireDefault(_ReplaceTransition);
 
-var _TransitionGroup = __webpack_require__(14);
+var _TransitionGroup = __webpack_require__(15);
 
 var _TransitionGroup2 = _interopRequireDefault(_TransitionGroup);
 
-var _Transition = __webpack_require__(11);
+var _Transition = __webpack_require__(12);
 
 var _Transition2 = _interopRequireDefault(_Transition);
 
@@ -30700,11 +30702,11 @@ var _react = __webpack_require__(0);
 
 var _react2 = _interopRequireDefault(_react);
 
-var _Transition = __webpack_require__(11);
+var _Transition = __webpack_require__(12);
 
 var _Transition2 = _interopRequireDefault(_Transition);
 
-var _PropTypes = __webpack_require__(13);
+var _PropTypes = __webpack_require__(14);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
@@ -31049,7 +31051,7 @@ var _react2 = _interopRequireDefault(_react);
 
 var _reactDom = __webpack_require__(2);
 
-var _TransitionGroup = __webpack_require__(14);
+var _TransitionGroup = __webpack_require__(15);
 
 var _TransitionGroup2 = _interopRequireDefault(_TransitionGroup);
 
@@ -31372,10 +31374,6 @@ function getNextChildMapping(nextProps, prevChildMapping, onExited) {
  * Block: course-group
  */
 
-//  Import CSS.
-//import './style.scss';
-//import './editor.scss';
-
 
 
 const { __ } = wp.i18n; // Import __() from wp.i18n
@@ -31383,7 +31381,7 @@ const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.b
 
 registerBlockType('cac-courses/cac-course-group', {
 	title: __('Course Group'), // Block title.
-	icon: 'smiley',
+	icon: 'groups',
 	category: 'common',
 	keywords: [__('Group'), __('Course')],
 
@@ -31451,7 +31449,7 @@ registerBlockType('cac-courses/cac-course-group', {
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__ = __webpack_require__(19);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__ = __webpack_require__(11);
 
 
 
@@ -31519,6 +31517,158 @@ class GroupSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (GroupSearch);
+
+/***/ }),
+/* 65 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_SiteSearch__ = __webpack_require__(66);
+/**
+ * Block: course-site
+ */
+
+
+
+const { __ } = wp.i18n; // Import __() from wp.i18n
+const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
+
+registerBlockType('cac-courses/cac-course-site', {
+	title: __('Course Site'), // Block title.
+	icon: 'admin-site',
+	category: 'common',
+	keywords: [__('Site'), __('Blog'), __('Course')],
+
+	attributes: {
+		siteIds: {
+			type: 'string',
+			source: 'meta',
+			meta: 'course-site-ids'
+		}
+	},
+
+	edit: function (props) {
+		const {
+			attributes: {
+				siteIds
+			}
+		} = props;
+
+		const handleSelectedSitesUpdate = selectedSites => {
+			const ids = selectedSites.map(group => group.value);
+			props.setAttributes({ siteIds: JSON.stringify(ids) });
+		};
+
+		let selectedSiteIds = [];
+		if (props.attributes.siteIds.length > 0) {
+			selectedSiteIds = JSON.parse(props.attributes.siteIds);
+		}
+
+		const title = 'Site';
+		const gloss = 'Select the site associated with this course';
+
+		return React.createElement(
+			'div',
+			{ className: 'cac-course-site-block' },
+			React.createElement(
+				'h2',
+				null,
+				title
+			),
+			React.createElement(
+				'p',
+				null,
+				gloss
+			),
+			React.createElement(__WEBPACK_IMPORTED_MODULE_0__components_SiteSearch__["a" /* default */], {
+				handleSelectedSitesUpdate: handleSelectedSitesUpdate,
+				selectedSiteIds: selectedSiteIds
+			})
+		);
+	},
+
+	save: function (props) {
+		return React.createElement(
+			'div',
+			null,
+			'\xA0'
+		);
+	}
+});
+
+/***/ }),
+/* 66 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_react__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__ = __webpack_require__(11);
+
+
+
+
+class SiteSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component {
+	constructor(props) {
+		super(props);
+
+		this.state = {
+			selectedSites: []
+		};
+	}
+
+	render() {
+		const { selectedSites } = this.state;
+		const { handleSelectedSitesUpdate, selectedSiteIds } = this.props;
+
+		const inputPlaceholder = "Start typing to find a site";
+
+		const searchRequest = searchTerm => wp.apiFetch({
+			path: wp.url.addQueryArgs(`/cac/v1/site`, {
+				search: searchTerm
+			})
+		});
+
+		const searchResultsFormatCallback = site => ({
+			label: site.name + ' (' + site.url + ')',
+			value: site.id
+		});
+
+		// todo
+		const populateSelectionsCallback = callback => {
+			if (0 === selectedSiteIds.length) {
+				callback([]);
+				return;
+			}
+
+			const request = wp.apiFetch({
+				path: wp.url.addQueryArgs(`/cac/v1/site`, {
+					include: selectedSiteIds
+				})
+			});
+
+			request.then(foundSites => {
+				const newSelectedSites = foundSites.map(site => ({
+					label: site.name + ' (' + site.url + ')',
+					value: site.id
+				}));
+
+				callback(newSelectedSites);
+			});
+		};
+
+		return __WEBPACK_IMPORTED_MODULE_0_react___default.a.createElement(__WEBPACK_IMPORTED_MODULE_1__AutocompleteSelector__["a" /* default */], {
+			handleSelectionsUpdate: handleSelectedSitesUpdate,
+			inputPlaceholder: inputPlaceholder,
+			populateSelectionsCallback: populateSelectionsCallback,
+			searchRequest: searchRequest,
+			searchResultsFormatCallback: searchResultsFormatCallback,
+			selections: selectedSites
+		});
+	}
+}
+
+/* harmony default export */ __webpack_exports__["a"] = (SiteSearch);
 
 /***/ })
 /******/ ]);

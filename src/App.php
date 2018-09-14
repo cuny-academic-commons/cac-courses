@@ -61,10 +61,14 @@ class App {
 						'cac-courses/cac-course-instructor'
 					],
 					[
-						'cac-courses/cac-course-campus'
+						'cac-courses/cac-course-group'
 					],
 					[
-						'cac-courses/cac-course-group'
+						'cac-courses/cac-course-site'
+					],
+					[
+						// At the end of the list so failures don't break other items.
+						'cac-courses/cac-course-campus'
 					],
 				],
 				'labels'       => [
@@ -137,15 +141,18 @@ class App {
 			]
 		);
 
-		// Saves sometimes appear to fail because of https://core.trac.wordpress.org/ticket/42069
-		register_meta(
-			'post',
-			'campus-slugs',
+		register_taxonomy(
+			'cac_course_site',
+			'cac_course',
 			[
-				'object_subtype' => 'cac_course',
-				'show_in_rest'   => true,
-				'single'         => true,
-				'type'           => 'string',
+				'labels' => [
+					'name'          => __( 'Sites', 'cac-courses' ),
+					'singular_name' => __( 'Site', 'cac-courses' ),
+					'add_new_term'  => __( 'Add New Site', 'cac-courses' ),
+				],
+				'show_in_rest' => false,
+				'show_ui'      => false,
+				'public'       => false,
 			]
 		);
 
@@ -162,12 +169,27 @@ class App {
 
 		register_meta(
 			'post',
-			'course-site-id',
+			'course-site-ids',
 			[
 				'object_subtype' => 'cac_course',
 				'show_in_rest'   => true,
 				'single'         => true,
-				'type'           => 'integer',
+				'type'           => 'string',
+			]
+		);
+
+		/*
+		 * Saves sometimes appear to fail because of https://core.trac.wordpress.org/ticket/42069
+		 * We register this last so that failures don't cause the whole thing to bail
+		 */
+		register_meta(
+			'post',
+			'campus-slugs',
+			[
+				'object_subtype' => 'cac_course',
+				'show_in_rest'   => true,
+				'single'         => true,
+				'type'           => 'string',
 			]
 		);
 	}
@@ -181,6 +203,14 @@ class App {
 			'campus-slugs' => [
 				'taxonomy'    => 'cac_course_campus',
 				'term_prefix' => '',
+			],
+			'course-group-ids' => [
+				'taxonomy'    => 'cac_course_group',
+				'term_prefix' => 'group_',
+			],
+			'course-site-ids' => [
+				'taxonomy'    => 'cac_course_site',
+				'term_prefix' => 'site_',
 			],
 		];
 
