@@ -5,7 +5,6 @@ namespace CAC\Courses;
 class Gutenberg {
 	public static function init() {
 		add_action( 'admin_enqueue_scripts', [ __CLASS__, 'admin_enqueue_scripts' ] );
-//		add_action( 'enqueue_block_assets', [ __CLASS__, 'enqueue_block_assets' ] );
 	}
 
 	public static function admin_enqueue_scripts() {
@@ -19,6 +18,22 @@ class Gutenberg {
 			'cac-courses-gutenberg-js',
 			CAC_COURSES_PLUGIN_URL . '/dist/app.build.js',
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'jquery' )
+		);
+
+		$campuses_data = [];
+		foreach ( cac_get_cuny_campuses() as $campus_slug => $campus_data ) {
+			$campuses_data[] = [
+				'value' => $campus_slug,
+				'label' => $campus_data['short_name'],
+			];
+		}
+
+		wp_localize_script(
+			'cac-courses-gutenberg-js',
+			'CACCourses',
+			[
+				'campuses' => $campuses_data,
+			]
 		);
 	}
 

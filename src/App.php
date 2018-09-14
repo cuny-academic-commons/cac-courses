@@ -55,6 +55,9 @@ class App {
 						'cac-courses/cac-course-instructor'
 					],
 					[
+						'cac-courses/cac-course-campus'
+					],
+					[
 						'core/paragraph',
 						[
 							'placeholder' => 'Enter description',
@@ -118,6 +121,17 @@ class App {
 
 		register_meta(
 			'post',
+			'campus-slugs',
+			[
+				'object_subtype' => 'cac_course',
+				'show_in_rest'   => true,
+				'single'         => true,
+				'type'           => 'string',
+			]
+		);
+
+		register_meta(
+			'post',
 			'course-site-id',
 			[
 				'object_subtype' => 'cac_course',
@@ -140,19 +154,34 @@ class App {
 	}
 
 	public static function sync_post_meta_and_tax_terms( $meta_id, $object_id, $meta_key, $meta_value ) {
-		if ( 'instructor-ids' !== $meta_key ) {
+		$map = [
+			'instructor-ids' => [
+				'taxonomy'    => 'cac_course_instructor',
+				'term_prefix' => 'instructor_',
+			],
+			'campus-slugs' => [
+				'taxonomy'    => 'cac_course_campus',
+				'term_prefix' => '',
+			],
+		];
+
+		if ( ! isset( $map[ $meta_key ] ) ) {
 			return;
 		}
 
-		$instructor_ids = json_decode( $meta_value );
+		$taxonomy    = $map[ $meta_key ]['taxonomy'];
+		$term_prefix = $map[ $meta_key ]['term_prefix'];
 
-		$instructor_terms = array_map(
-			function( $user_id ) {
-				return 'instructor_' . $user_id;
+		$meta_values = json_decode( $meta_value );
+		_b( $meta_values );
+
+		$meta_terms = array_map(
+			function( $mv ) use ( $term_prefix ) {
+				return $term_prefix . $mv;
 			},
-			$instructor_ids
+			$meta_values
 		);
 
-		wp_set_post_terms( $object_id, $instructor_terms, 'cac_course_instructor' );
+		wp_set_post_terms( $object_id, $meta_terms, $taxonomy );
 	}
 }
