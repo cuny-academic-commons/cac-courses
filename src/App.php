@@ -43,6 +43,18 @@ class App {
 		add_action( 'init', function() {
 			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 		} );
+
+		add_action( 'pre_get_posts', function( $r ) {
+			if ( ! $r->is_post_type_archive( 'cac_course' ) ) {
+				return;
+			}
+
+			if ( ! $r->is_main_query() ) {
+				return;
+			}
+
+			$r->set( 'orderby', [ 'post_title' => 'ASC' ] );
+		} );
 	}
 
 	public static function register_post_type() {
