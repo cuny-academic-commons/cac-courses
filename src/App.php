@@ -38,6 +38,11 @@ class App {
 
 		// Tax/meta sync.
 		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+		add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+
+		add_action( 'init', function() {
+			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
+		} );
 
 		// Frontend template integration.
 //		Frontend::init();
@@ -47,7 +52,12 @@ class App {
 		register_post_type(
 			self::$post_type,
 			[
-				'public'       => false,
+				'public'       => true,
+				'rewrite'      => [
+					'slug'       => 'courses',
+					'with_front' => false,
+				],
+				'has_archive'  => true,
 				'show_ui'      => current_user_can( 'activate_plugins' ),
 				'show_in_rest' => true,
 				'template'     => [
@@ -194,8 +204,8 @@ class App {
 		);
 	}
 
-	public static function sync_post_meta_and_tax_terms( $meta_id, $object_id, $meta_key, $meta_value ) {
-		$map = [
+	public static function meta_tax_map() {
+		return [
 			'instructor-ids' => [
 				'taxonomy'    => 'cac_course_instructor',
 				'term_prefix' => 'instructor_',
@@ -213,6 +223,10 @@ class App {
 				'term_prefix' => 'site_',
 			],
 		];
+	}
+
+	public static function sync_post_meta_and_tax_terms( $meta_id, $object_id, $meta_key, $meta_value ) {
+		$map = self::meta_tax_map();
 
 		if ( ! isset( $map[ $meta_key ] ) ) {
 			return;

@@ -33,7 +33,7 @@ class AutocompleteSelector extends React.Component {
 		const { searchRequest, searchResultsFormatCallback } = this.props
 
 		const newValue = e.target.value
-    const inputValue = newValue.replace(/\W/g, '');
+    const inputValue = newValue;
 
     this.setState({ inputValue });
 
