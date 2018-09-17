@@ -60,7 +60,7 @@ class User extends WP_REST_Controller {
 			$bp = buddypress();
 
 			$like    = '%' . $wpdb->esc_like( $search_term ) . '%';
-			$matches = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->users} u WHERE ( u.user_email LIKE %s ) OR u.ID in ( SELECT user_id FROM {$bp->profile->table_name_data} WHERE field_id = 1 AND value LIKE %s ) LIMIT 25", $like, $like ) );
+			$matches = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->users} u WHERE ( u.user_email LIKE %s ) OR ( u.user_login LIKE %s ) OR u.ID in ( SELECT user_id FROM {$bp->profile->table_name_data} WHERE field_id = 1 AND value LIKE %s ) LIMIT 25", $like, $like, $like ) );
 
 			if ( ! $matches ) {
 				return $results;
