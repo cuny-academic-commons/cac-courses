@@ -39,5 +39,6 @@ function cac_courses() {
 }
 
 add_action( 'plugins_loaded', function() {
-	cac_courses()::init();
+	$cc = cac_courses();
+	$cc::init();
 } );
