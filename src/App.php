@@ -43,9 +43,6 @@ class App {
 		add_action( 'init', function() {
 			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 		} );
-
-		// Frontend template integration.
-//		Frontend::init();
 	}
 
 	public static function register_post_type() {
