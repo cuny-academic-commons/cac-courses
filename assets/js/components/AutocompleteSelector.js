@@ -2,6 +2,8 @@ import Autocomplete from 'react-autocomplete'
 import React, { Component } from 'react'
 import SearchSelection from './SearchSelection'
 
+import { debounce } from 'throttle-debounce'
+
 import '../../scss/AutocompleteSelector.scss';
 
 class AutocompleteSelector extends React.Component {
@@ -16,6 +18,8 @@ class AutocompleteSelector extends React.Component {
 			selections: [],
 		}
 
+		this.searchThrottled = debounce( 200, this.performQuery )
+
 		this.handleInputChange = this.handleInputChange.bind(this)
 		this.handleRemoveClick = this.handleRemoveClick.bind(this)
 		this.handleSelect = this.handleSelect.bind(this)
@@ -29,9 +33,24 @@ class AutocompleteSelector extends React.Component {
 		} )
 	}
 
-	handleInputChange(e) {
+	performQuery(searchTerm) {
 		const { searchRequest, searchResultsFormatCallback } = this.props
 
+		const request = searchRequest( searchTerm )
+
+		request.then( ( foundItems ) => {
+			const formattedFoundItems = foundItems.map( searchResultsFormatCallback )
+
+			this.setState( { allItems: formattedFoundItems } )
+
+			let newCached = Object.assign( {}, this.state.cached )
+			newCached[ searchTerm ] = formattedFoundItems
+			this.setState( { cached: newCached } )
+		} );
+
+	}
+
+	handleInputChange(e) {
 		const newValue = e.target.value
     const inputValue = newValue;
 
@@ -42,18 +61,7 @@ class AutocompleteSelector extends React.Component {
 			return newValue;
 		}
 
-		const request = searchRequest( inputValue )
-
-		request.then( ( foundItems ) => {
-			console.log(foundItems)
-			const formattedFoundItems = foundItems.map( searchResultsFormatCallback )
-
-			this.setState( { allItems: formattedFoundItems } )
-
-			let newCached = Object.assign( {}, this.state.cached )
-			newCached[ newValue ] = formattedFoundItems
-			this.setState( { cached: newCached } )
-		} );
+		this.searchThrottled( inputValue )
   }
 
 	handleSelect( match ) {
