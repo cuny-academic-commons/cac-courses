@@ -21,8 +21,10 @@ class GroupSearch extends React.Component {
 			path: wp.url.addQueryArgs(
 				`/buddypress/v1/groups`,
 				{
-					per_page: 10,
+					per_page: 25,
 					search: searchTerm,
+					orderby: 'name',
+					order: 'asc',
 				}
 			),
 		} ) )
@@ -32,7 +34,6 @@ class GroupSearch extends React.Component {
 				value: group.id,
 		} )
 
-		// todo
 		const populateSelectionsCallback = (callback) => {
 			if ( 0 === selectedGroupIds.length ) {
 				callback( [] )

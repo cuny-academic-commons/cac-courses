@@ -31623,8 +31623,10 @@ class GroupSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
 
 		const searchRequest = searchTerm => wp.apiFetch({
 			path: wp.url.addQueryArgs(`/buddypress/v1/groups`, {
-				per_page: 10,
-				search: searchTerm
+				per_page: 25,
+				search: searchTerm,
+				orderby: 'name',
+				order: 'asc'
 			})
 		});
 
@@ -31633,7 +31635,6 @@ class GroupSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Componen
 			value: group.id
 		});
 
-		// todo
 		const populateSelectionsCallback = callback => {
 			if (0 === selectedGroupIds.length) {
 				callback([]);
