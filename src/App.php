@@ -77,17 +77,20 @@ class App {
 						]
 					],
 					[
-						'cac-courses/cac-course-instructor'
+						'cac-courses/cac-course-term',
 					],
 					[
-						'cac-courses/cac-course-group'
+						'cac-courses/cac-course-instructor',
 					],
 					[
-						'cac-courses/cac-course-site'
+						'cac-courses/cac-course-group',
+					],
+					[
+						'cac-courses/cac-course-site',
 					],
 					[
 						// At the end of the list so failures don't break other items.
-						'cac-courses/cac-course-campus'
+						'cac-courses/cac-course-campus',
 					],
 				],
 				'labels'       => [
@@ -130,6 +133,32 @@ class App {
 				],
 				'show_in_rest' => false,
 				'show_ui'      => false, // @todo
+				'public'       => false,
+			]
+		);
+
+		register_meta(
+			'post',
+			'course-terms',
+			[
+				'object_subtype' => 'cac_course',
+				'show_in_rest'   => true,
+				'single'         => true,
+				'type'           => 'string',
+			]
+		);
+
+		register_taxonomy(
+			'cac_course_term',
+			'cac_course',
+			[
+				'labels' => [
+					'name'          => __( 'Academic Terms', 'cac-courses' ),
+					'singular_name' => __( 'Academic Term', 'cac-courses' ),
+					'add_new_term'  => __( 'Add New Term', 'cac-courses' ),
+				],
+				'show_in_rest' => false,
+				'show_ui'      => false,
 				'public'       => false,
 			]
 		);
@@ -218,6 +247,10 @@ class App {
 			'instructor-ids' => [
 				'taxonomy'    => 'cac_course_instructor',
 				'term_prefix' => 'instructor_',
+			],
+			'course-terms' => [
+				'taxonomy'    => 'cac_course_term',
+				'term_prefix' => '',
 			],
 			'campus-slugs' => [
 				'taxonomy'    => 'cac_course_campus',

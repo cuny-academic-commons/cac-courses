@@ -1812,10 +1812,11 @@ module.exports = exports['default'];
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_course_instructor_block_js__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blocks_course_campus_block_js__ = __webpack_require__(43);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__blocks_course_group_block_js__ = __webpack_require__(64);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__blocks_course_site_block_js__ = __webpack_require__(66);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__blocks_course_term_block_js__ = __webpack_require__(68);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__blocks_course_instructor_block_js__ = __webpack_require__(17);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__blocks_course_campus_block_js__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__blocks_course_group_block_js__ = __webpack_require__(64);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__blocks_course_site_block_js__ = __webpack_require__(66);
 /**
  * Gutenberg Blocks
  *
@@ -1869,6 +1870,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 		});
 	});
 })(jQuery);
+
 
 
 
@@ -31822,6 +31824,178 @@ class SiteSearch extends __WEBPACK_IMPORTED_MODULE_0_react___default.a.Component
 }
 
 /* harmony default export */ __webpack_exports__["a"] = (SiteSearch);
+
+/***/ }),
+/* 68 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_react_select__ = __webpack_require__(44);
+/**
+ * Block: course-term
+ */
+
+//  Import CSS.
+//import './style.scss';
+
+const { __ } = wp.i18n; // Import __() from wp.i18n
+const { registerBlockType } = wp.blocks; // Import registerBlockType() from wp.blocks
+
+
+
+registerBlockType('cac-courses/cac-course-term', {
+	title: __('Academic Term'), // Block title.
+	icon: 'calendar',
+	category: 'common',
+	keywords: [__('Semester'), __('Year')],
+
+	attributes: {
+		terms: {
+			type: 'string',
+			source: 'meta',
+			meta: 'course-terms'
+		}
+	},
+
+	/**
+  * The edit function describes the structure of your block in the context of the editor.
+  * This represents what the editor will render when the block is used.
+  *
+  * The "edit" property must be a valid function.
+  *
+  * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
+  */
+	edit: function (props) {
+		const {
+			attributes: {
+				terms
+			}
+		} = props;
+
+		const handleChange = selectedTerms => {
+			const terms = selectedTerms.map(term => term.value);
+			props.setAttributes({ terms: JSON.stringify(terms) });
+		};
+
+		const getTermName = function (year, semester) {
+			switch (semester) {
+				case 1:
+					return 'Winter ' + year;
+
+				case 2:
+					return 'Spring ' + year;
+
+				case 3:
+					return 'Summer ' + year;
+
+				case 4:
+					return 'Fall ' + year;
+			}
+		};
+
+		const title = 'Academic Term';
+		const gloss = 'Select the academic term(s) this course is associated with';
+		const placeholder = 'Select term(s)';
+
+		const allTerms = function () {
+			const firstYear = 2018;
+			const firstYearSemester = 2;
+
+			const currentTime = new Date();
+			const thisYear = currentTime.getFullYear();
+
+			const semesterMap = {
+				1: 'Winter',
+				2: 'Spring',
+				3: 'Summer',
+				4: 'Fall'
+			};
+
+			let endSemester;
+			let endYear;
+			switch (currentTime.getMonth()) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					endSemester = 4;
+					endYear = thisYear;
+					break;
+
+				default:
+					endSemester = 2;
+					endYear = thisYear + 1;
+					break;
+			}
+
+			let terms = [];
+			let yearStartSemester = 1;
+			let yearEndSemester = 4;
+			for (let theYear = firstYear; theYear <= endYear; theYear++) {
+				yearStartSemester = theYear === firstYear ? firstYearSemester : 1;
+				yearEndSemester = theYear === endYear ? endSemester : 4;
+
+				for (let theSemester = yearStartSemester; theSemester <= yearEndSemester; theSemester++) {
+					terms.push({
+						label: getTermName(theYear, theSemester),
+						value: theYear + '-' + theSemester
+					});
+				}
+			}
+
+			return terms.reverse();
+		};
+
+		const options = allTerms();
+
+		const defaultValue = JSON.parse(props.attributes.terms).map(term => {
+			for (var theTerm of options) {
+				if (theTerm.value === term) {
+					return theTerm;
+				}
+			}
+		});
+
+		return React.createElement(
+			'div',
+			{ className: 'cac-course-term-block' },
+			React.createElement(
+				'h2',
+				null,
+				title
+			),
+			React.createElement(
+				'p',
+				null,
+				gloss
+			),
+			React.createElement(__WEBPACK_IMPORTED_MODULE_0_react_select__["a" /* default */], {
+				defaultValue: defaultValue,
+				isMulti: true,
+				onChange: handleChange,
+				options: options,
+				placeholder: placeholder
+			})
+		);
+	},
+
+	/**
+  * The save function defines the way in which the different attributes should be combined
+  * into the final markup, which is then serialized by Gutenberg into post_content.
+  *
+  * The "save" property must be specified and must be a valid function.
+  *
+  * @link https://wordpress.org/gutenberg/handbook/block-api/block-edit-save/
+  */
+	save: function (props) {
+		return React.createElement(
+			'div',
+			null,
+			'\xA0'
+		);
+	}
+});
 
 /***/ })
 /******/ ]);
