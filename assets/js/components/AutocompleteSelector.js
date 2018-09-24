@@ -132,6 +132,14 @@ class AutocompleteSelector extends React.Component {
 			placeholder: inputPlaceholder,
 		}
 
+		const wrapperProps = {
+			className: 'cac-autocomplete-selector-wrapper',
+		}
+
+		const wrapperStyle = {
+			display: 'block',
+		}
+
 		return (
 			<div>
 				<Autocomplete
@@ -149,6 +157,8 @@ class AutocompleteSelector extends React.Component {
 						</div>
 					}
 					value={this.state.inputValue}
+					wrapperProps={wrapperProps}
+					wrapperStyle={wrapperStyle}
 				/>
 
 				<ul className="selected-item-list">

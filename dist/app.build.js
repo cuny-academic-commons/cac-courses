@@ -537,6 +537,14 @@ class AutocompleteSelector extends __WEBPACK_IMPORTED_MODULE_1_react___default.a
 			placeholder: inputPlaceholder
 		};
 
+		const wrapperProps = {
+			className: 'cac-autocomplete-selector-wrapper'
+		};
+
+		const wrapperStyle = {
+			display: 'block'
+		};
+
 		return __WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
 			'div',
 			null,
@@ -554,7 +562,9 @@ class AutocompleteSelector extends __WEBPACK_IMPORTED_MODULE_1_react___default.a
 						key: 'item-' + item.value },
 					item.label
 				),
-				value: this.state.inputValue
+				value: this.state.inputValue,
+				wrapperProps: wrapperProps,
+				wrapperStyle: wrapperStyle
 			}),
 			__WEBPACK_IMPORTED_MODULE_1_react___default.a.createElement(
 				'ul',
@@ -23392,7 +23402,7 @@ exports = module.exports = __webpack_require__(40)(false);
 
 
 // module
-exports.push([module.i, ".editor-block-list__block ul.selected-item-list {\n  list-style-type: none !important;\n  margin-top: .5em; }\n  .editor-block-list__block ul.selected-item-list li {\n    background: #efefef;\n    border-radius: 2px;\n    font-size: .9em;\n    margin-bottom: .5em;\n    padding: 4px 8px; }\n    .editor-block-list__block ul.selected-item-list li .selected-item-name {\n      padding-bottom: 5px; }\n\n.editor-block-list__block a.selected-item-remove {\n  color: #f00;\n  font-size: 1.5em;\n  line-height: 1em;\n  text-decoration: none; }\n", ""]);
+exports.push([module.i, ".cac-autocomplete-selector-wrapper input {\n  padding: .5em;\n  width: 100%; }\n\n.editor-block-list__block ul.selected-item-list {\n  list-style-type: none !important;\n  margin-top: .5em; }\n  .editor-block-list__block ul.selected-item-list li {\n    background: #efefef;\n    border-radius: 2px;\n    font-size: .9em;\n    margin-bottom: .5em;\n    padding: 4px 8px; }\n    .editor-block-list__block ul.selected-item-list li .selected-item-name {\n      padding-bottom: 5px; }\n\n.editor-block-list__block a.selected-item-remove {\n  color: #f00;\n  font-size: 1.5em;\n  line-height: 1em;\n  text-decoration: none; }\n", ""]);
 
 // exports
 
