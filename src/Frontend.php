@@ -17,6 +17,10 @@ class Frontend {
 	}
 
 	public static function signup_field() {
+		if ( bp_is_group_create() || bp_is_group_admin_page() ) {
+			return;
+		}
+
 		wp_enqueue_style( 'cac-site-template-signup-field' );
 
 		$template_query = new Template\Query();
