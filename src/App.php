@@ -40,6 +40,8 @@ class App {
 		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
 		add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
 
+		add_action( 'admin_init', [ __CLASS__, 'add_role_caps' ], 99 );
+
 		add_action( 'init', function() {
 			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 		} );
@@ -66,8 +68,10 @@ class App {
 					'slug'       => 'courses',
 					'with_front' => false,
 				],
+				'capability_type' => 'cac_course',
+				'map_meta_cap' => true,
 				'has_archive'  => true,
-				'show_ui'      => current_user_can( 'activate_plugins' ),
+				'show_ui'      => current_user_can( 'edit_cac_courses' ),
 				'show_in_rest' => true,
 				'template'     => [
 					[
@@ -287,5 +291,27 @@ class App {
 		);
 
 		wp_set_post_terms( $object_id, $meta_terms, $taxonomy );
+	}
+
+	public static function add_role_caps() {
+		// Add the roles you'd like to administer the custom post types
+		$roles = array( 'courses_editor','editor','administrator' );
+
+		// Loop through each role and assign capabilities
+		foreach( $roles as $the_role ) {
+			$role = get_role( $the_role );
+
+			$role->add_cap( 'read' );
+			$role->add_cap( 'read_cac_course');
+			$role->add_cap( 'read_private_cac_courses' );
+			$role->add_cap( 'edit_cac_course' );
+			$role->add_cap( 'edit_cac_courses' );
+			$role->add_cap( 'edit_others_cac_courses' );
+			$role->add_cap( 'edit_published_cac_courses' );
+			$role->add_cap( 'publish_cac_courses' );
+			$role->add_cap( 'delete_others_cac_courses' );
+			$role->add_cap( 'delete_private_cac_courses' );
+			$role->add_cap( 'delete_published_cac_courses' );
+		}
 	}
 }
