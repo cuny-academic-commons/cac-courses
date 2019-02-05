@@ -97,6 +97,7 @@ class App {
 						'cac-courses/cac-course-campus',
 					],
 				],
+				'template_lock' => 'all',
 				'labels'       => [
 					'name'          => 'Courses',
 					'singular_name' => 'Course',
