@@ -39,6 +39,8 @@ class App {
 		// Tax/meta sync.
 		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
 		add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+		add_action( 'updated_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
+		add_action( 'added_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
 
 		add_action( 'admin_init', [ __CLASS__, 'add_role_caps' ], 99 );
 
@@ -55,7 +57,12 @@ class App {
 				return;
 			}
 
-			$r->set( 'orderby', [ 'post_title' => 'ASC' ] );
+			$r->set( 'meta_key', 'course-term-sortable' );
+
+			$r->set( 'orderby', [
+				'meta_value' => 'DESC',
+				'post_title' => 'ASC',
+			] );
 		} );
 	}
 
@@ -292,6 +299,25 @@ class App {
 		);
 
 		wp_set_post_terms( $object_id, $meta_terms, $taxonomy );
+	}
+
+	public static function sync_course_term_to_sortable_meta( $meta_id, $object_id, $meta_key, $meta_value ) {
+		if ( 'course-terms' !== $meta_key ) {
+			return;
+		}
+
+		$course_terms = json_decode( $meta_value );
+		if ( $course_terms ) {
+			sort( $course_terms );
+
+			$sort_by_term = end( $course_terms );
+
+			if ( ! $sort_by_term ) {
+				$sort_by_term = '2015-01'; // Put it last.
+			}
+		}
+
+		update_post_meta( $object_id, 'course-term-sortable', $sort_by_term );
 	}
 
 	public static function add_role_caps() {
