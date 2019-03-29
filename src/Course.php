@@ -4,7 +4,13 @@ namespace CAC\Courses;
 
 class Course {
 	protected $data = [
+		'id' => null,
 		'title' => '',
+		'group_ids' => null,
+		'site_ids' => null,
+		'instructor_ids' => null,
+		'campuses' => null,
+		'terms' => null,
 	];
 
 	protected $meta_tax_map;
@@ -36,12 +42,41 @@ class Course {
 		return $this->data['title'];
 	}
 
+	public function get_terms() {
+		if ( null !== $this->data['terms'] ) {
+			return $this->data['terms'];
+		}
+
+		$terms = get_post_meta( $this->get_id(), 'course-terms', true );
+
+		if ( ! $terms ) {
+			$terms = [];
+		} else {
+			$terms = json_decode( $terms );
+		}
+
+		$this->data['terms'] = $terms;
+
+		return $this->data['terms'];
+	}
+
 	public function get_campuses() {
+		if ( null !== $this->data['campuses'] ) {
+			return $this->data['campuses'];
+		}
+
 		$terms = wp_get_post_terms( $this->get_id(), 'cac_course_campus' );
-		return wp_list_pluck( $terms, 'name' );
+
+		$this->data['campuses'] = wp_list_pluck( $terms, 'name' );
+
+		return $this->data['campuses'];
 	}
 
 	public function get_instructor_ids() {
+		if ( null !== $this->data['instructor_ids'] ) {
+			return $this->data['instructor_ids'];
+		}
+
 		$terms = wp_get_post_terms( $this->get_id(), 'cac_course_instructor' );
 		$map   = App::meta_tax_map();
 
@@ -53,10 +88,16 @@ class Course {
 			$terms
 		);
 
-		return array_filter( $instructor_ids );
+		$this->data['instructor_ids'] = array_filter( $instructor_ids );
+
+		return $this->data['instructor_ids'];
 	}
 
 	public function get_group_ids() {
+		if ( null !== $this->data['group_ids'] ) {
+			return $this->data['group_ids'];
+		}
+
 		$terms = wp_get_post_terms( $this->get_id(), 'cac_course_group' );
 		$map   = App::meta_tax_map();
 
@@ -68,10 +109,16 @@ class Course {
 			$terms
 		);
 
-		return array_filter( $group_ids );
+		$this->data['group_ids'] = array_filter( $group_ids );
+
+		return $this->data['group_ids'];
 	}
 
 	public function get_site_ids() {
+		if ( null !== $this->data['site_ids'] ) {
+			return $this->data['site_ids'];
+		}
+
 		$terms = wp_get_post_terms( $this->get_id(), 'cac_course_site' );
 		$map   = App::meta_tax_map();
 
@@ -83,7 +130,9 @@ class Course {
 			$terms
 		);
 
-		return array_filter( $site_ids );
+		$this->data['site_ids'] = array_filter( $site_ids );
+
+		return $this->data['site_ids'];
 	}
 
 	public function get_campus_names() {
@@ -146,5 +195,59 @@ class Course {
 			},
 			$this->get_sites()
 		);
+	}
+
+	public function set_id( $id ) {
+		$this->data['id'] = (int) $id;
+	}
+
+	public function set_title( $title ) {
+		$this->data['title'] = $title;
+	}
+
+	public function set_group_ids( $group_ids ) {
+		$this->data['group_ids'] = array_map( 'intval', $group_ids );
+	}
+
+	public function set_site_ids( $site_ids ) {
+		$this->data['site_ids'] = array_map( 'intval', $site_ids );
+	}
+
+	public function set_instructor_ids( $instructor_ids ) {
+		$this->data['instructor_ids'] = array_map( 'intval', $instructor_ids );
+	}
+
+	public function set_campuses( $campuses ) {
+		$this->data['campuses'] = $campuses;
+	}
+
+	public function set_terms( $terms ) {
+		$this->data['terms'] = $terms;
+	}
+
+	public function save() {
+		if ( $this->data['id'] ) {
+			$post_id = $this->get_id();
+		} else {
+			$post_data = [
+				'post_type'   => 'cac_course',
+				'post_status' => 'publish',
+				'post_title'  => $this->get_title(),
+			];
+
+			$post_id = wp_insert_post( $post_data, true );
+			if ( is_wp_error( $post_id ) ) {
+				return $post_id;
+			}
+
+			$this->set_id( $post_id );
+		}
+
+		// Save to meta and let the sync mechanism mirror to taxonomy.
+		update_post_meta( $post_id, 'course-group-ids', json_encode( $this->get_group_ids() ) );
+		update_post_meta( $post_id, 'course-site-ids', json_encode( $this->get_site_ids() ) );
+		update_post_meta( $post_id, 'instructor-ids', json_encode( $this->get_instructor_ids() ) );
+		update_post_meta( $post_id, 'campus-slugs', json_encode( $this->get_campuses() ) );
+		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
 	}
 }
