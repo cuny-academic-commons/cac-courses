@@ -328,6 +328,11 @@ class App {
 		foreach( $roles as $the_role ) {
 			$role = get_role( $the_role );
 
+			if ( ! $role ) {
+				// In case of switched blog, avoid fatals.
+				continue;
+			}
+
 			$role->add_cap( 'read' );
 			$role->add_cap( 'read_cac_course');
 			$role->add_cap( 'read_private_cac_courses' );
