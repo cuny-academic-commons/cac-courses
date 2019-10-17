@@ -36,6 +36,9 @@ class App {
 		// API endpoints.
 		API::init();
 
+		// Featured.
+		Featured::init();
+
 		// Tax/meta sync.
 		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
 		add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
