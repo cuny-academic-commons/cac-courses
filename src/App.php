@@ -216,6 +216,22 @@ class App {
 			]
 		);
 
+		register_taxonomy(
+			'cac_course_disciplinary_cluster',
+			'cac_course',
+			[
+				'labels' => [
+					'name'          => __( 'Disciplinary Clusters', 'cac-courses' ),
+					'singular_name' => __( 'Disciplinary Cluster', 'cac-courses' ),
+					'add_new_term'  => __( 'Add New Disciplinary Cluster', 'cac-courses' ),
+				],
+				'show_in_rest' => true,
+				'public'       => false,
+				'show_ui'      => true,
+				'hierarchical' => true, // to get checkboxes
+			]
+		);
+
 		register_meta(
 			'post',
 			'course-group-ids',
