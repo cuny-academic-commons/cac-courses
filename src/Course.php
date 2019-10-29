@@ -9,6 +9,7 @@ class Course {
 		'group_ids' => null,
 		'site_ids' => null,
 		'instructor_ids' => null,
+		'disciplinary_clusters' => null,
 		'campuses' => null,
 		'terms' => null,
 	];
@@ -70,6 +71,18 @@ class Course {
 		$this->data['campuses'] = wp_list_pluck( $terms, 'name' );
 
 		return $this->data['campuses'];
+	}
+
+	public function get_disciplinary_clusters() {
+		if ( null !== $this->data['disciplinary_clusters'] ) {
+			return $this->data['disciplinary_clusters'];
+		}
+
+		$terms = wp_get_post_terms( $this->get_id(), 'cac_course_disciplinary_cluster' );
+
+		$this->data['disciplinary_clusters'] = wp_list_pluck( $terms, 'slug' );
+
+		return $this->data['disciplinary_clusters'];
 	}
 
 	public function get_instructor_ids() {
@@ -221,6 +234,10 @@ class Course {
 		$this->data['campuses'] = $campuses;
 	}
 
+	public function set_disciplinary_clusters( $disciplinary_clusters ) {
+		$this->data['disciplinary_clusters'] = $disciplinary_clusters;
+	}
+
 	public function set_terms( $terms ) {
 		$this->data['terms'] = $terms;
 	}
@@ -249,5 +266,7 @@ class Course {
 		update_post_meta( $post_id, 'instructor-ids', json_encode( $this->get_instructor_ids() ) );
 		update_post_meta( $post_id, 'campus-slugs', json_encode( $this->get_campuses() ) );
 		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
+
+		wp_set_object_terms( $post_id, $this->get_disciplinary_clusters(), 'cac_course_disciplinary_cluster' );
 	}
 }
