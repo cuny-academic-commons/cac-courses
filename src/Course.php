@@ -155,7 +155,11 @@ class Course {
 
 		$retval = array_map(
 			function( $slug ) use ( $campuses_data ) {
-				return $campuses_data[ $slug ]['full_name'] ?: '';
+				if ( 'cuny-wide' === $slug ) {
+					return 'CUNY-wide';
+				} else {
+					return $campuses_data[ $slug ]['full_name'] ?: '';
+				}
 			},
 			$slugs
 		);

@@ -20,7 +20,12 @@ class Gutenberg {
 			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'jquery' )
 		);
 
-		$campuses_data = [];
+		$campuses_data = [
+			[
+				'value' => 'cuny-wide',
+				'label' => 'CUNY-wide',
+			],
+		];
 		foreach ( cac_get_cuny_campuses() as $campus_slug => $campus_data ) {
 			$campuses_data[] = [
 				'value' => $campus_slug,
