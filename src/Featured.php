@@ -8,7 +8,9 @@ class Featured {
 	}
 
 	public static function admin_menu() {
-		if ( isset( $_POST['cac-courses-featured-nonce'] ) && current_user_can( 'manage_options' ) ) {
+		$post_type = get_post_type_object( 'cac_course' );
+
+		if ( isset( $_POST['cac-courses-featured-nonce'] ) && current_user_can( $post_type->cap->edit_others_posts ) ) {
 			check_admin_referer( 'cac-courses-featured', 'cac-courses-featured-nonce' );
 
 			$ids = wp_unslash( $_POST['course-ids'] );
@@ -26,7 +28,7 @@ class Featured {
 			'edit.php?post_type=cac_course',
 			'Featured Courses',
 			'Featured',
-			'manage_options',
+			$post_type->cap->edit_others_posts,
 			'cac-courses-featured',
 			[ __CLASS__, 'admin' ]
 		);
