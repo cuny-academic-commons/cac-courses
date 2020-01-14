@@ -6714,7 +6714,7 @@ registerBlockType('cac-courses/cac-course-term', {
 
 		const options = allTerms();
 
-		const returnedTerms = '' === props.attributes.terms ? [] : JSON.parse(props.attributes.terms);
+		const returnedTerms = !props.attributes.hasOwnProperty('terms') || '' === props.attributes.terms ? [] : JSON.parse(props.attributes.terms);
 		const defaultValue = returnedTerms.map(term => {
 			for (var theTerm of options) {
 				if (theTerm.value === term) {
