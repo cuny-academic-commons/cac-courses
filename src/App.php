@@ -51,6 +51,10 @@ class App {
 			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 		} );
 
+		// Deletion.
+		add_action( 'bp_groups_delete_group', [ __CLASS__, 'maybe_delete_course_on_group_deletion' ] );
+		add_action( 'wp_uninitialize_site', [ __CLASS__, 'maybe_delete_course_on_site_deletion' ], 1 );
+
 		add_action( 'pre_get_posts', function( $r ) {
 			if ( ! $r->is_post_type_archive( 'cac_course' ) ) {
 				return;
@@ -364,5 +368,112 @@ class App {
 			$role->add_cap( 'delete_private_cac_courses' );
 			$role->add_cap( 'delete_published_cac_courses' );
 		}
+	}
+
+	/**
+	 * Deletes the course corresponding to a deleted group.
+	 *
+	 * @param BP_Groups_Group $group
+	 */
+	public function maybe_delete_course_on_group_deletion( \BP_Groups_Group $group ) {
+		$term_slug = 'group_' . $group->id;
+
+		$group_course_ids = get_posts(
+			[
+				'post_type'      => 'cac_course',
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'tax_query'      => [
+					[
+						'taxonomy' => 'cac_course_group',
+						'terms'    => $term_slug,
+						'field'    => 'slug',
+					]
+				],
+			]
+		);
+
+		foreach ( $group_course_ids as $course_id ) {
+			$has_site  = false;
+			$has_group = false;
+
+			$course = new Course( $course_id );
+
+			$course_site_ids = $course->get_site_ids();
+			if ( ! empty( $course_site_ids ) ) {
+				$has_site = true;
+			}
+
+			$course_group_ids     = $course->get_group_ids();
+			$new_course_group_ids = array_diff( $course_group_ids, [ $group->id ] );
+			if ( $new_course_group_ids ) {
+				$has_group = true;
+			}
+
+			if ( ! $has_site && ! $has_group ) {
+				// If the course has no more associated items, trash it.
+				wp_trash_post( $course_id );
+			} else {
+				// Keep the course but remove the deleted group from its associated group IDs.
+				$course->set_group_ids( $new_course_group_ids );
+				$course->save();
+			}
+		}
+	}
+
+	/**
+	 * Deletes the course corresponding to a deleted site.
+	 *
+	 * @param \WP_Site $site Site object.
+	 */
+	public function maybe_delete_course_on_site_deletion( \WP_Site $site ) {
+		switch_to_blog( bp_get_root_blog_id() );
+
+		$term_slug = 'site_' . $site->blog_id;
+		$term      = get_term_by( 'slug', $term_slug, 'cac_course_site' );
+
+		$site_course_ids = get_posts(
+			[
+				'post_type'      => 'cac_course',
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+				'tax_query'      => [
+					[
+						'taxonomy' => 'cac_course_site',
+						'terms'    => $term->term_id,
+						'field'    => 'term_id',
+					]
+				],
+			]
+		);
+
+		foreach ( $site_course_ids as $course_id ) {
+			$has_site  = false;
+			$has_group = false;
+
+			$course = new Course( $course_id );
+
+			$course_group_ids = $course->get_group_ids();
+			if ( ! empty( $course_group_ids ) ) {
+				$has_group = true;
+			}
+
+			$course_site_ids     = $course->get_site_ids();
+			$new_course_site_ids = array_diff( $course_site_ids, [ $site->blog_id ] );
+			if ( $new_course_site_ids ) {
+				$has_site = true;
+			}
+
+			if ( ! $has_site && ! $has_group ) {
+				// If the course has no more associated items, trash it.
+				wp_trash_post( $course_id );
+			} else {
+				// Keep the course but remove the deleted site from its associated site IDs.
+				$course->set_site_ids( $new_course_site_ids );
+				$course->save();
+			}
+		}
+
+		restore_current_blog();
 	}
 }
