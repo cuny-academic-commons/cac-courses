@@ -10,16 +10,16 @@
     "extends @wordpress/browserslist-config"
   ],
   "dependencies": {
-    "@wordpress/browserslist-config": "^2.1.0",
-    "@babel/runtime": "^7.0.0-beta.56",
-    "classnames": "^2.2.5",
-    "core-js": "^2.5.7"
+    "@babel/runtime": "^7.14.0",
+    "@wordpress/browserslist-config": "^2.7.0",
+    "classnames": "^2.3.1",
+    "core-js": "^2.6.12"
   },
   "devDependencies": {
     "@wordpress/babel-preset-default": "^1.1.0",
     "@wordpress/deprecated": "^1.0.2",
-    "@wordpress/element": "^1.0.2",
-    "@wordpress/is-shallow-equal": "^1.1.2",
+    "@wordpress/element": "^1.0.4",
+    "@wordpress/is-shallow-equal": "^1.8.0",
     "autoprefixer": "^7.1.6",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
@@ -27,10 +27,10 @@
     "babel-plugin-transform-react-jsx": "^6.24.1",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-react": "^6.24.1",
-    "cross-env": "^5.1.1",
-    "css-loader": "^1.0.0",
-    "debounce-promise": "^3.1.0",
-    "enzyme": "^3.3.0",
+    "cross-env": "^5.2.1",
+    "css-loader": "^1.0.1",
+    "debounce-promise": "^3.1.2",
+    "enzyme": "^3.11.0",
     "extract-text-webpack-plugin": "^3.0.2",
     "node-sass": "^4.14.1",
     "postcss-loader": "^2.0.9",
@@ -38,11 +38,11 @@
     "react": "^16.4.2",
     "react-autocomplete": "^1.8.1",
     "react-dom": "^16.4.2",
-    "react-select": "^2.0.0",
+    "react-select": "^2.4.4",
     "sass-loader": "^6.0.6",
     "style-loader": "^0.22.0",
-    "throttle-debounce": "^2.0.1",
-    "webpack": "^3.8.1"
+    "throttle-debounce": "^2.3.0",
+    "webpack": "^5.36.2"
   },
   "main": "dist/block.js"
 }
