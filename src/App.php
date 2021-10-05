@@ -74,6 +74,7 @@ class App {
 			} );
 		} else {
 			add_action( 'wp_uninitialize_site', [ __CLASS__, 'maybe_delete_course_on_site_deletion' ], 1 );
+			add_action( 'wp_update_site', [ __CLASS__, 'maybe_delete_course_on_site_update' ], 10, 2 );
 			add_action( 'update_option_blog_public', [ __CLASS__, 'update_course_public_on_blog_public_change' ], 10, 2 );
 		}
 	}
@@ -427,12 +428,31 @@ class App {
 	}
 
 	/**
+	 * Deletes the course corresponding to a site marked 'deleted' by a user.
+	 *
+	 * @param \WP_Site $new_site
+	 * @param \WP_Site $old_site
+	 */
+	public function maybe_delete_course_on_site_update( $new_site, $old_site ) {
+		if ( ! $new_site->deleted ) {
+			return;
+		}
+
+		self::maybe_delete_course_on_site_deletion( $new_site );
+	}
+
+	/**
 	 * Deletes the course corresponding to a deleted site.
 	 *
 	 * @param \WP_Site $site Site object.
 	 */
 	public function maybe_delete_course_on_site_deletion( \WP_Site $site ) {
 		switch_to_blog( bp_get_root_blog_id() );
+
+		// Gah. Otherwise the post query fails inside of switch_to_blog().
+		register_post_type( self::$post_type, [ 'public' => false ] );
+		register_taxonomy( 'cac_course_site', self::$post_type, [ 'public' => false ] );
+		register_taxonomy( 'cac_course_group', self::$post_type, [ 'public' => false ] );
 
 		$term_slug = 'site_' . $site->blog_id;
 		$term      = get_term_by( 'slug', $term_slug, 'cac_course_site' );
@@ -478,6 +498,10 @@ class App {
 				$course->save();
 			}
 		}
+
+		unregister_post_type( self::$post_type );
+		unregister_taxonomy( 'cac_course_site' );
+		unregister_taxonomy( 'cac_course_group' );
 
 		restore_current_blog();
 	}

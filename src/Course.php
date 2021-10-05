@@ -2,6 +2,8 @@
 
 namespace CAC\Courses;
 
+use \WP_Site;
+
 class Course {
 	protected $data = [
 		'id' => null,
@@ -203,6 +205,10 @@ class Course {
 	public function get_site_links() {
 		return array_map(
 			function( $site ) {
+				if ( ! ( $site instanceof WP_Site ) ) {
+					return '';
+				}
+
 				return sprintf(
 					'<a href="%s">%s</a> (%s)',
 					$site->home,
