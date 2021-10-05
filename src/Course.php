@@ -271,12 +271,29 @@ class Course {
 		update_post_meta( $post_id, 'campus-slugs', json_encode( $this->get_campuses() ) );
 		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
 
+		$has_public_group_or_site = false;
 		foreach ( $this->get_site_ids() as $site_id ) {
-			$meta_key = 'blog_public_site_' . $site_id;
-			delete_post_meta( $site_id, $meta_key );
+			$blog_public = (int) get_blog_option( $site_id, 'blog_public' );
+			if ( 1 === $blog_public || 0 === $blog_public ) {
+				$has_public_group_or_site = true;
+				break;
+			}
+		}
 
-			$blog_public = get_blog_option( $site_id, 'blog_public' );
-			add_post_meta( $site_id, $meta_key, $blog_public );
+		if ( ! $has_public_group_or_site ) {
+			foreach ( $this->get_group_ids() as $group_id ) {
+				$group = groups_get_group( $group_id );
+				if ( 'public' === $group->status ) {
+					$has_public_group_or_site = true;
+					break;
+				}
+			}
+		}
+
+		if ( $has_public_group_or_site ) {
+			update_post_meta( $post_id, 'has-public-group-or-site', 1 );
+		} else {
+			delete_post_meta( $post_id, 'has-public-group-or-site' );
 		}
 
 		wp_set_object_terms( $post_id, $this->get_disciplinary_clusters(), 'cac_course_disciplinary_cluster' );
