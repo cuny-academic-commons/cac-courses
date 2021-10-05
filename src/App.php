@@ -52,8 +52,9 @@ class App {
 				add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 			} );
 
-			// Deletion.
+			// Perform updates on group edit/deletion.
 			add_action( 'bp_groups_delete_group', [ __CLASS__, 'maybe_delete_course_on_group_deletion' ] );
+			add_action( 'groups_settings_updated', [ __CLASS__, 'update_course_public_on_group_status_change' ] );
 
 			add_action( 'pre_get_posts', function( $r ) {
 				if ( ! $r->is_post_type_archive( 'cac_course' ) ) {
@@ -527,5 +528,38 @@ class App {
 		unregister_taxonomy( 'cac_course_group' );
 
 		restore_current_blog();
+	}
+
+	/**
+	 * Update the 'has-public-group-or-site' flag on a group update.
+	 *
+	 * @param $group_id
+	 */
+	public static function update_course_public_on_group_status_change( $group_id ) {
+		$tax_map = self::meta_tax_map();
+
+		$prefix = $tax_map['course-group-ids']['term_prefix'];
+
+		$term_name = $prefix . $group_id;
+
+		$group_course_ids = get_posts(
+			[
+				'post_type'      => 'cac_course',
+				'tax_query'      => [
+					[
+						'taxonomy' => $tax_map['course-group-ids']['taxonomy'],
+						'terms'    => $term_name,
+						'field'    => 'name',
+					]
+				],
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+			]
+		);
+
+		foreach ( $group_course_ids as $group_course_id ) {
+			$course = new Course( $group_course_id );
+			$course->update_public_flag();
+		}
 	}
 }
