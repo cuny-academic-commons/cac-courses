@@ -271,6 +271,14 @@ class Course {
 		update_post_meta( $post_id, 'campus-slugs', json_encode( $this->get_campuses() ) );
 		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
 
+		foreach ( $this->get_site_ids() as $site_id ) {
+			$meta_key = 'blog_public_site_' . $site_id;
+			delete_post_meta( $site_id, $meta_key );
+
+			$blog_public = get_blog_option( $site_id, 'blog_public' );
+			add_post_meta( $site_id, $meta_key, $blog_public );
+		}
+
 		wp_set_object_terms( $post_id, $this->get_disciplinary_clusters(), 'cac_course_disciplinary_cluster' );
 	}
 }
