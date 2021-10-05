@@ -27,50 +27,54 @@ class App {
 	}
 
 	public static function init() {
-		// Initialize Gutenberg integration.
-		Gutenberg::init();
+		if ( is_main_site() ) {
+			// Initialize Gutenberg integration.
+			Gutenberg::init();
 
-		// Schema.
-		add_action( 'init', [ __CLASS__, 'register_post_type' ] );
+			// Schema.
+			add_action( 'init', [ __CLASS__, 'register_post_type' ] );
 
-		// API endpoints.
-		API::init();
+			// API endpoints.
+			API::init();
 
-		// Featured.
-		Featured::init();
+			// Featured.
+			Featured::init();
 
-		// Tax/meta sync.
-		add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
-		add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
-		add_action( 'updated_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
-		add_action( 'added_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
+			// Tax/meta sync.
+			add_action( 'updated_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+			add_action( 'added_post_meta', [ __CLASS__, 'sync_post_meta_and_tax_terms' ], 10, 4 );
+			add_action( 'updated_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
+			add_action( 'added_post_meta', [ __CLASS__, 'sync_course_term_to_sortable_meta' ], 10, 4 );
 
-		add_action( 'admin_init', [ __CLASS__, 'add_role_caps' ], 99 );
+			add_action( 'admin_init', [ __CLASS__, 'add_role_caps' ], 99 );
 
-		add_action( 'init', function() {
-			add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
-		} );
+			add_action( 'init', function() {
+				add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
+			} );
 
-		// Deletion.
-		add_action( 'bp_groups_delete_group', [ __CLASS__, 'maybe_delete_course_on_group_deletion' ] );
-		add_action( 'wp_uninitialize_site', [ __CLASS__, 'maybe_delete_course_on_site_deletion' ], 1 );
+			// Deletion.
+			add_action( 'bp_groups_delete_group', [ __CLASS__, 'maybe_delete_course_on_group_deletion' ] );
 
-		add_action( 'pre_get_posts', function( $r ) {
-			if ( ! $r->is_post_type_archive( 'cac_course' ) ) {
-				return;
-			}
+			add_action( 'pre_get_posts', function( $r ) {
+				if ( ! $r->is_post_type_archive( 'cac_course' ) ) {
+					return;
+				}
 
-			if ( ! $r->is_main_query() ) {
-				return;
-			}
+				if ( ! $r->is_main_query() ) {
+					return;
+				}
 
-			$r->set( 'meta_key', 'course-term-sortable' );
+				$r->set( 'meta_key', 'course-term-sortable' );
 
-			$r->set( 'orderby', [
-				'meta_value' => 'DESC',
-				'post_title' => 'ASC',
-			] );
-		} );
+				$r->set( 'orderby', [
+					'meta_value' => 'DESC',
+					'post_title' => 'ASC',
+				] );
+			} );
+		} else {
+			add_action( 'wp_uninitialize_site', [ __CLASS__, 'maybe_delete_course_on_site_deletion' ], 1 );
+			add_action( 'update_option_blog_public', [ __CLASS__, 'update_course_public_on_blog_public_change' ], 10, 2 );
+		}
 	}
 
 	public static function register_post_type() {
@@ -473,6 +477,54 @@ class App {
 				$course->save();
 			}
 		}
+
+		restore_current_blog();
+	}
+
+	/**
+	 * Update the 'has-public-group-or-site' flag on a blog_public change.
+	 *
+	 * @param int $old_value
+	 * @param int $new_value
+	 */
+	public static function update_course_public_on_blog_public_change( $old_value, $new_value ) {
+		$site_id = get_current_blog_id();
+		$tax_map = self::meta_tax_map();
+
+		$prefix = $tax_map['course-site-ids']['term_prefix'];
+
+		$term_name = $prefix . $site_id;
+
+		switch_to_blog( get_main_site_id() );
+
+		// Gah. Otherwise the post query fails inside of switch_to_blog().
+		register_post_type( self::$post_type, [ 'public' => false ] );
+		register_taxonomy( 'cac_course_site', self::$post_type, [ 'public' => false ] );
+		register_taxonomy( 'cac_course_group', self::$post_type, [ 'public' => false ] );
+
+		$site_course_ids = get_posts(
+			[
+				'post_type'      => 'cac_course',
+				'tax_query'      => [
+					[
+						'taxonomy' => $tax_map['course-site-ids']['taxonomy'],
+						'terms'    => $term_name,
+						'field'    => 'name',
+					]
+				],
+				'fields'         => 'ids',
+				'posts_per_page' => -1,
+			]
+		);
+
+		foreach ( $site_course_ids as $site_course_id ) {
+			$course = new Course( $site_course_id );
+			$course->update_public_flag();
+		}
+
+		unregister_post_type( self::$post_type );
+		unregister_taxonomy( 'cac_course_site' );
+		unregister_taxonomy( 'cac_course_group' );
 
 		restore_current_blog();
 	}
