@@ -14,6 +14,7 @@ class Course {
 		'disciplinary_clusters' => null,
 		'campuses' => null,
 		'terms' => null,
+		'uses_oer' => false,
 	];
 
 	protected $meta_tax_map;
@@ -220,6 +221,10 @@ class Course {
 		);
 	}
 
+	public function get_uses_oer() {
+		return (bool) $this->data['uses_oer'];
+	}
+
 	public function set_id( $id ) {
 		$this->data['id'] = (int) $id;
 	}
@@ -252,6 +257,10 @@ class Course {
 		$this->data['terms'] = $terms;
 	}
 
+	public function set_uses_oer( $uses_oer ) {
+		$this->data['uses_oer'] = (bool) $uses_oer;
+	}
+
 	public function save() {
 		if ( $this->data['id'] ) {
 			$post_id = $this->get_id();
@@ -278,6 +287,12 @@ class Course {
 		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
 
 		wp_set_object_terms( $post_id, $this->get_disciplinary_clusters(), 'cac_course_disciplinary_cluster' );
+
+		if ( $this->get_uses_oer() ) {
+			update_post_meta( $post_id, 'uses-oer', 1 );
+		} else {
+			delete_post_meta( $post_id, 'uses-oer' );
+		}
 
 		$this->update_public_flag();
 	}
