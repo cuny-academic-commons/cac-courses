@@ -286,6 +286,20 @@ class Course {
 		update_post_meta( $post_id, 'campus-slugs', json_encode( $this->get_campuses() ) );
 		update_post_meta( $post_id, 'course-terms', json_encode( $this->get_terms() ) );
 
+		// Mirror instructor IDs to BP blog meta.
+		if ( function_exists( 'buddypress' ) && bp_is_active( 'blogs' ) ) {
+			foreach ( $this->get_site_ids() as $site_id ) {
+				bp_blogs_update_blogmeta( $site_id, 'cac_instructors', $this->get_instructor_ids() );
+			}
+		}
+
+		// Mirror instructor IDs to BP group meta.
+		if ( function_exists( 'buddypress' ) && bp_is_active( 'groups' ) ) {
+			foreach ( $this->get_group_ids() as $group_id ) {
+				groups_update_groupmeta( $group_id, 'cac_instructors', $this->get_instructor_ids() );
+			}
+		}
+
 		wp_set_object_terms( $post_id, $this->get_disciplinary_clusters(), 'cac_course_disciplinary_cluster' );
 
 		if ( $this->get_uses_oer() ) {
