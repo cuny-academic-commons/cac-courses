@@ -9,7 +9,7 @@ var webpack = require( 'webpack' ),
 			filename: 'dist/app.build.js',
 		},
 		module: {
-			loaders: [
+			rules: [
 				{
 					test: /.js$/,
 					loader: 'babel-loader',
