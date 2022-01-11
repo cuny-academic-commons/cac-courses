@@ -75,7 +75,6 @@ class App {
 		} else {
 			add_action( 'wp_uninitialize_site', [ __CLASS__, 'maybe_delete_course_on_site_deletion' ], 1 );
 			add_action( 'wp_update_site', [ __CLASS__, 'maybe_delete_course_on_site_update' ], 10, 2 );
-			add_action( 'update_option_blog_public', [ __CLASS__, 'update_course_public_on_blog_public_change' ], 10, 2 );
 		}
 	}
 
@@ -497,54 +496,6 @@ class App {
 				$course->set_site_ids( $new_course_site_ids );
 				$course->save();
 			}
-		}
-
-		unregister_post_type( self::$post_type );
-		unregister_taxonomy( 'cac_course_site' );
-		unregister_taxonomy( 'cac_course_group' );
-
-		restore_current_blog();
-	}
-
-	/**
-	 * Update the 'has-public-group-or-site' flag on a blog_public change.
-	 *
-	 * @param int $old_value
-	 * @param int $new_value
-	 */
-	public static function update_course_public_on_blog_public_change( $old_value, $new_value ) {
-		$site_id = get_current_blog_id();
-		$tax_map = self::meta_tax_map();
-
-		$prefix = $tax_map['course-site-ids']['term_prefix'];
-
-		$term_name = $prefix . $site_id;
-
-		switch_to_blog( get_main_site_id() );
-
-		// Gah. Otherwise the post query fails inside of switch_to_blog().
-		register_post_type( self::$post_type, [ 'public' => false ] );
-		register_taxonomy( 'cac_course_site', self::$post_type, [ 'public' => false ] );
-		register_taxonomy( 'cac_course_group', self::$post_type, [ 'public' => false ] );
-
-		$site_course_ids = get_posts(
-			[
-				'post_type'      => 'cac_course',
-				'tax_query'      => [
-					[
-						'taxonomy' => $tax_map['course-site-ids']['taxonomy'],
-						'terms'    => $term_name,
-						'field'    => 'name',
-					]
-				],
-				'fields'         => 'ids',
-				'posts_per_page' => -1,
-			]
-		);
-
-		foreach ( $site_course_ids as $site_course_id ) {
-			$course = new Course( $site_course_id );
-			$course->update_public_flag();
 		}
 
 		unregister_post_type( self::$post_type );
