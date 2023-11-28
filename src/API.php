@@ -41,7 +41,8 @@ class API {
 			'login',
 			[
 				'get_callback' => function( $user ) {
-					return $user['username'];
+					$user = new \WP_User( $user['id'] );
+					return $user->user_login;
 				}
 			]
 		);
