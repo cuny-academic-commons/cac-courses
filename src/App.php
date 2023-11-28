@@ -380,7 +380,7 @@ class App {
 	 *
 	 * @param BP_Groups_Group $group
 	 */
-	public function maybe_delete_course_on_group_deletion( \BP_Groups_Group $group ) {
+	public static function maybe_delete_course_on_group_deletion( \BP_Groups_Group $group ) {
 		$term_slug = 'group_' . $group->id;
 
 		$group_course_ids = get_posts(
@@ -432,7 +432,7 @@ class App {
 	 * @param \WP_Site $new_site
 	 * @param \WP_Site $old_site
 	 */
-	public function maybe_delete_course_on_site_update( $new_site, $old_site ) {
+	public static function maybe_delete_course_on_site_update( $new_site, $old_site ) {
 		if ( ! $new_site->deleted ) {
 			return;
 		}
