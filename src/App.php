@@ -445,7 +445,7 @@ class App {
 	 *
 	 * @param \WP_Site $site Site object.
 	 */
-	public function maybe_delete_course_on_site_deletion( \WP_Site $site ) {
+	public static function maybe_delete_course_on_site_deletion( \WP_Site $site ) {
 		switch_to_blog( bp_get_root_blog_id() );
 
 		// Gah. Otherwise the post query fails inside of switch_to_blog().
