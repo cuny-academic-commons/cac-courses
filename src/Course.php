@@ -192,9 +192,11 @@ class Course {
 
 		return array_map(
 			function( $group ) {
+				$url = function_exists( 'bp_get_group_url' ) ? bp_get_group_url( $group ) : bp_get_group_permalink( $group );
+
 				return sprintf(
 					'<a href="%s">%s</a> (%s)',
-					esc_attr( bp_get_group_permalink( $group ) ),
+					esc_url( $url ),
 					esc_html( bp_get_group_name( $group ) ),
 					'public' === $group->status ? 'Public Group' : 'Private Group'
 				);
