@@ -48,6 +48,10 @@ class App {
 
 			add_action( 'admin_init', [ __CLASS__, 'add_role_caps' ], 99 );
 
+			// Admin list table columns.
+			add_filter( 'manage_cac_course_posts_columns', [ __CLASS__, 'add_list_table_columns' ] );
+			add_action( 'manage_cac_course_posts_custom_column', [ __CLASS__, 'render_list_table_column' ], 10, 2 );
+
 			add_action( 'init', function() {
 				add_shortcode( 'cac-courses', [ __CLASS__, 'render_shortcode' ] );
 			} );
@@ -372,6 +376,53 @@ class App {
 			$role->add_cap( 'delete_others_cac_courses' );
 			$role->add_cap( 'delete_private_cac_courses' );
 			$role->add_cap( 'delete_published_cac_courses' );
+		}
+	}
+
+	/**
+	 * Adds ID, Site URL, and Group URL columns to the course list table.
+	 *
+	 * @param array $columns
+	 * @return array
+	 */
+	public static function add_list_table_columns( $columns ) {
+		$columns['cac_course_id']        = __( 'ID', 'cac-courses' );
+		$columns['cac_course_site_urls']  = __( 'Site URL', 'cac-courses' );
+		$columns['cac_course_group_urls'] = __( 'Group URL', 'cac-courses' );
+		return $columns;
+	}
+
+	/**
+	 * Renders custom column content for the course list table.
+	 *
+	 * @param string $column_name
+	 * @param int    $post_id
+	 */
+	public static function render_list_table_column( $column_name, $post_id ) {
+		switch ( $column_name ) {
+			case 'cac_course_id':
+				echo esc_html( $post_id );
+				break;
+
+			case 'cac_course_site_urls':
+				$course = new Course( $post_id );
+				$links  = $course->get_site_links();
+				if ( $links ) {
+					echo implode( '<br>', $links ); // phpcs:ignore WordPress.Security.EscapeOutput
+				} else {
+					echo '&mdash;';
+				}
+				break;
+
+			case 'cac_course_group_urls':
+				$course = new Course( $post_id );
+				$links  = $course->get_group_links();
+				if ( $links ) {
+					echo implode( '<br>', $links ); // phpcs:ignore WordPress.Security.EscapeOutput
+				} else {
+					echo '&mdash;';
+				}
+				break;
 		}
 	}
 
