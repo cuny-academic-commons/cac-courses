@@ -406,7 +406,19 @@ class App {
 
 			case 'cac_course_site_urls':
 				$course = new Course( $post_id );
-				$links  = $course->get_site_links();
+
+				$links = array_map(
+					function( $site_id ) {
+						$url = get_blog_details( $site_id )->siteurl;
+						return sprintf(
+							'<a href="%s">%s</a>',
+							esc_url( $url ),
+							esc_url( $url )
+						);
+					},
+					$course->get_site_ids()
+				);
+
 				if ( $links ) {
 					echo implode( '<br>', $links ); // phpcs:ignore WordPress.Security.EscapeOutput
 				} else {
@@ -416,7 +428,19 @@ class App {
 
 			case 'cac_course_group_urls':
 				$course = new Course( $post_id );
-				$links  = $course->get_group_links();
+
+				$links = array_map(
+					function( $group ) {
+						$url = bp_get_group_url( $group );
+						return sprintf(
+							'<a href="%s">%s</a>',
+							esc_url( $url ),
+							esc_url( $url )
+						);
+					},
+					$course->get_groups()
+				);
+
 				if ( $links ) {
 					echo implode( '<br>', $links ); // phpcs:ignore WordPress.Security.EscapeOutput
 				} else {
